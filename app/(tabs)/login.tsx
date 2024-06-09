@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 
 const usuarios = [
     { usuario: 'Calu', password: '123456' },
-    { usuario: 'Silvana', password: '123456' },
+    { usuario: 'Silvana', password: 'abcdefF.'},
     { usuario: 'Dani', password: '123456' },
 ];
 const validarLogin = (usuario: string, contrasena: string) => {
@@ -14,20 +14,33 @@ const validarLogin = (usuario: string, contrasena: string) => {
     const usuarioValido = usuarios.find(u => u.usuario === usuario && u.password === contrasena);
     return !!usuarioValido; // Retorna true si encuentra un usuario válido, de lo contrario false
 };
+const validarCredenciales = (usuario: string, contrasena: string) => {
+    const usuarioValido = usuario.length > 5;
+    const contrasenaValida = contrasena.length > 5 &&
+        /[a-z]/.test(contrasena) && // al menos una minúscula
+        /[A-Z]/.test(contrasena) && // al menos una mayúscula
+        /[!@#$%^&*(),.?":{}|<>]/.test(contrasena); // al menos un símbolo
+
+    return usuarioValido && contrasenaValida;
+};
 
 export default function Login() {
     const [usuario, setUsuario] = useState('');
     const [contraseña, setContraseña] = useState('');
-    const [error, setError] = useState(false);
+    const [error, setError] = useState('');
     const router = useRouter();
 
     const handleLogin = () => {
+        if (!validarCredenciales(usuario, contraseña)) {
+            setError('El usuario debe tener más de 5 caracteres. La contraseña debe tener más de 5 caracteres, al menos una minúscula, una mayúscula y un símbolo.');
+            return;
+        }
         if (validarLogin(usuario, contraseña)) {
             router.push({ 
-                pathname: '/home', 
+                pathname: '/home/ver-tareas',
                 params: { usuario } });
         } else {
-            setError(true); // Muestra el mensaje de error
+            setError('Credenciales incorrectas'); // Muestra el mensaje de error
         }
     };
 
@@ -81,6 +94,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 20,
+        marginTop: 40,
         color: '#0e88c9',
     },
     inputContainer: {
